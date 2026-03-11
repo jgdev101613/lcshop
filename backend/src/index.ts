@@ -11,10 +11,14 @@ import commentReplyRoutes from "./routes/commentReplyRoutes";
 
 const app = express();
 
-app.use(cors({ origin: ENV.FRONTEND_URL }));
+app.use(cors({ origin: ENV.FRONTEND_URL, credentials: true }));
+// `credentials: true` => allows the frontend to send cookies to the backend for user authentication
 app.use(clerkMiddleware());
+// Auth Object to be attached to the request
 app.use(express.json());
+// Parses JSON request bodies
 app.use(express.urlencoded({ extended: true }));
+// Parses Form Data (like htlm form)
 
 app.use("/api/users", userRoutes);
 app.use("/api/comments", commentsRoutes);
