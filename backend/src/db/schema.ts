@@ -1,14 +1,23 @@
 import {
   boolean,
   decimal,
+  integer,
   pgTable,
   serial,
   text,
   timestamp,
   uuid,
   uniqueIndex,
+  pgEnum,
 } from "drizzle-orm/pg-core";
 import { relations } from "drizzle-orm";
+
+export const statusEnum = pgEnum("status", [
+  "Available",
+  "Sold",
+  "Out Of Stock",
+  "Unavailable",
+]);
 
 export const users = pgTable("users", {
   id: text("id").primaryKey(),
@@ -29,6 +38,11 @@ export const products = pgTable("products", {
   title: text("title").notNull(),
   description: text("description").notNull(),
   price: decimal("price", { precision: 5, scale: 2 }).notNull().default("0"),
+  status: statusEnum().default("Available"),
+  stock: integer("stock").notNull().default(1),
+  category: text("category").notNull(),
+  subCategory: text("sub_category"),
+  location: text("location").notNull().default("Lucena"),
   imageUrl: text("image_url").notNull(),
   userId: text("user_id")
     .notNull()
@@ -56,10 +70,6 @@ export const commentReply = pgTable("comment_replies", {
   userId: text("user_id")
     .notNull()
     .references(() => users.id, { onDelete: "cascade" }),
-
-  productId: uuid("product_id")
-    .notNull()
-    .references(() => products.id, { onDelete: "cascade" }),
 
   commentId: uuid("comment_id")
     .notNull()
@@ -162,11 +172,6 @@ export const commentReplyRelations = relations(
     user: one(users, {
       fields: [commentReply.userId],
       references: [users.id],
-    }),
-
-    product: one(products, {
-      fields: [commentReply.productId],
-      references: [products.id],
     }),
 
     comment: one(comments, {
