@@ -73,7 +73,29 @@ export const updateProduct = async (req: Request, res: Response) => {
 
     const { id } = req.params;
     const productId = Array.isArray(id) ? id[0] : id;
-    const { title, description, imageUrl, price, category } = req.body;
+    const updates = req.body;
+
+    if (Object.keys(updates).length === 0) {
+      return res
+        .status(400)
+        .json({ error: "At least one field is required for update" });
+    }
+
+    const allowedFields = [
+      "title",
+      "description",
+      "imageUrl",
+      "price",
+      "category",
+    ];
+
+    const updateData: any = {};
+
+    for (const field of allowedFields) {
+      if (updates[field] !== undefined) {
+        updateData[field] = updates[field];
+      }
+    }
 
     const existingProduct = await queries.getProductById(productId);
     if (!existingProduct) {
@@ -86,13 +108,7 @@ export const updateProduct = async (req: Request, res: Response) => {
       return;
     }
 
-    const product = await queries.updateProduct(productId, {
-      title,
-      description,
-      imageUrl,
-      price,
-      category,
-    });
+    const product = await queries.updateProduct(productId, updateData);
 
     res.status(200).json(product);
   } catch (error) {
