@@ -11,19 +11,24 @@ const useUserSync = () => {
     mutate: syncUserMutation,
     isPending,
     isSuccess,
+    isError,
   } = useMutation({
     mutationFn: syncUser,
+    onError: (error) => {
+      console.error("Failed to sync user:", error);
+      // Add toast
+    },
   });
 
   useEffect(() => {
-    if (isSignedIn && user && !isPending && !isSuccess) {
+    if (isSignedIn && user && !isPending && !isSuccess && !isError) {
       syncUserMutation({
-        email: user.primaryEmailAddress.emailAddress,
+        email: user.primaryEmailAddress?.emailAddress,
         name: user.fullName || user.firstName,
         imageUrl: user.imageUrl,
       });
     }
-  }, [isSignedIn, user, syncUserMutation, isPending, isSuccess]);
+  }, [isSignedIn, user, isPending, isSuccess, isError]);
 
   return { isSynced: isSuccess };
 };
