@@ -4,6 +4,7 @@ import LoadingSpinner from "../components/LoadingSpinner";
 import { Link } from "react-router";
 import { SparklesIcon, PackageIcon } from "lucide-react";
 import ProductCard from "../components/ProductCard";
+import { SignInButton } from "@clerk/react";
 
 const HomePage = () => {
   const { data: products, isLoading, error } = useProducts();
@@ -39,17 +40,19 @@ const HomePage = () => {
             <p className="py-4 text-base-content/60">
               Buy, sell, discover and connect with Lucenahin
             </p>
-            <Link to={"/create"} className="btn btn-primary">
-              <SparklesIcon className="size-4" />
-              Sell Now
-            </Link>
+            <SignInButton mode="modal">
+              <button className="btn btn-primary">
+                <SparklesIcon className="size-4" />
+                Sell Now
+              </button>
+            </SignInButton>
           </div>
         </div>
       </div>
 
       {/* PRODUCTS */}
-      <div>
-        <h2 className="text-xl font-bold flex items-center gap-2 py-16">
+      <div className="mt-10">
+        <h2 className="text-xl font-bold flex items-center gap-2 mb-4">
           <PackageIcon className="size-5 text-primary" />
           All Products
         </h2>
