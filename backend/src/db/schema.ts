@@ -53,7 +53,10 @@ export const products = pgTable("products", {
     .notNull()
     .references(() => users.id, { onDelete: "cascade" }),
   createdAt: timestamp("created_at", { mode: "date" }).notNull().defaultNow(),
-  updatedAt: timestamp("updated_at", { mode: "date" }).notNull().defaultNow(),
+  updatedAt: timestamp("updated_at", { mode: "date" })
+    .notNull()
+    .defaultNow()
+    .$onUpdate(() => new Date()),
 });
 
 export const comments = pgTable("comments", {
@@ -187,6 +190,42 @@ export const commentReplyRelations = relations(
     likes: many(replyLikes),
   }),
 );
+
+export const postLikesRelations = relations(postLikes, ({ one }) => ({
+  user: one(users, {
+    fields: [postLikes.userId],
+    references: [users.id],
+  }),
+
+  product: one(products, {
+    fields: [postLikes.productId],
+    references: [products.id],
+  }),
+}));
+
+export const commentLikesRelations = relations(commentLikes, ({ one }) => ({
+  user: one(users, {
+    fields: [commentLikes.userId],
+    references: [users.id],
+  }),
+
+  comment: one(comments, {
+    fields: [commentLikes.commentId],
+    references: [comments.id],
+  }),
+}));
+
+export const replyLikesRelations = relations(replyLikes, ({ one }) => ({
+  user: one(users, {
+    fields: [replyLikes.userId],
+    references: [users.id],
+  }),
+
+  reply: one(commentReply, {
+    fields: [replyLikes.replyId],
+    references: [commentReply.id],
+  }),
+}));
 
 // Type interface
 export type User = typeof users.$inferSelect;

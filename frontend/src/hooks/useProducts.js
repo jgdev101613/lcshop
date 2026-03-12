@@ -1,5 +1,11 @@
 import { useMutation, useQuery } from "@tanstack/react-query";
-import { createProduct, getAllProducts, uploadImages } from "../lib/api";
+import {
+  createProduct,
+  deleteProduct,
+  getAllProducts,
+  getProductById,
+  uploadImages,
+} from "../lib/api";
 
 export const useProducts = () => {
   const result = useQuery({ queryKey: ["products"], queryFn: getAllProducts });
@@ -13,6 +19,21 @@ export const useCreateProduct = () => {
       const imageUrls = await uploadImages(files);
       return createProduct({ ...rest, imageUrls });
     },
+    onError: (error) => console.log(error),
+  });
+};
+
+export const useProduct = (id) => {
+  return useQuery({
+    queryKey: ["product", id],
+    queryFn: () => getProductById(id),
+    enabled: !!id,
+  });
+};
+
+export const useDeleteProduct = (id) => {
+  return useMutation({
+    mutationFn: () => deleteProduct(id),
     onError: (error) => console.log(error),
   });
 };
