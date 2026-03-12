@@ -38,27 +38,32 @@ export const getProductById = async (req: Request, res: Response) => {
 
 export const createProduct = async (req: Request, res: Response) => {
   try {
-    const { userId } = req.body;
+    const { userId } = getAuth(req);
     if (!userId) return res.status(401).json({ error: "Unauthorized" });
-
-    const { title, description, imageUrl, price, category } = req.body;
-
-    if (!title || !description || !imageUrl || !price || !category) {
+    const { title, description, imageUrls, price, category } = req.body;
+    if (!title || !description || !imageUrls?.length || !price || !category) {
       res.status(400).json({
-        error: "Title, Description, Image Url, Price and Category are required",
+        error:
+          "Title, Description, at least one Image, Price and Category are required",
       });
       return;
     }
-
+    if (
+      !Array.isArray(imageUrls) ||
+      imageUrls.length < 1 ||
+      imageUrls.length > 4
+    ) {
+      res.status(400).json({ error: "Between 1 and 4 images are required" });
+      return;
+    }
     const product = await queries.createProduct({
       title,
       description,
-      imageUrl,
+      imageUrls,
       price,
       category,
       userId,
     });
-
     res.status(201).json(product);
   } catch (error) {
     console.error("Error creating product:", error);

@@ -3,12 +3,12 @@ import {
   decimal,
   integer,
   pgTable,
-  serial,
   text,
   timestamp,
   uuid,
   uniqueIndex,
   pgEnum,
+  jsonb,
 } from "drizzle-orm/pg-core";
 import { relations } from "drizzle-orm";
 
@@ -24,7 +24,12 @@ export const users = pgTable("users", {
   email: text("email").notNull().unique(),
   name: text("name"),
   imageUrl: text("image_url"),
-  isVerified: boolean("isVerifed").notNull().default(false),
+  isVerified: boolean("is_verifed").notNull().default(false),
+  socials: jsonb("socials").$type<{
+    facebook?: string;
+    instagram?: string;
+    x?: string;
+  }>(),
   location: text("location").notNull().default("Lucena"),
   createdAt: timestamp("created_at", { mode: "date" }).notNull().defaultNow(),
   updatedAt: timestamp("updated_at", { mode: "date" })
@@ -37,13 +42,13 @@ export const products = pgTable("products", {
   id: uuid("id").defaultRandom().primaryKey(),
   title: text("title").notNull(),
   description: text("description").notNull(),
-  price: decimal("price", { precision: 5, scale: 2 }).notNull().default("0"),
+  price: decimal("price", { precision: 10, scale: 2 }).notNull().default("0"),
   status: statusEnum().default("Available"),
   stock: integer("stock").notNull().default(1),
   category: text("category").notNull(),
   subCategory: text("sub_category"),
   location: text("location").notNull().default("Lucena"),
-  imageUrl: text("image_url").notNull(),
+  imageUrls: text("image_urls").array().notNull().default([]),
   userId: text("user_id")
     .notNull()
     .references(() => users.id, { onDelete: "cascade" }),

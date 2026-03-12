@@ -22,6 +22,14 @@ export const getMyProduct = async () => {
   return data;
 };
 
+export const uploadImages = async (files) => {
+  const formData = new FormData();
+  files.forEach((file) => formData.append("images", file));
+
+  const { data } = await api.post("/products/upload", formData);
+  return data.imageUrls;
+};
+
 export const createProduct = async (productData) => {
   const { data } = await api.post("/products", productData);
   return data;

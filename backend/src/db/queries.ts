@@ -11,6 +11,8 @@ import {
   type NewCommentReply,
 } from "./schema";
 
+type UpdateUser = Partial<Omit<NewUser, "id" | "createdAt">>;
+
 // User Queries
 export const createUser = async (data: NewUser) => {
   const [user] = await db.insert(users).values(data).returning();
@@ -21,17 +23,17 @@ export const getUserById = async (id: string) => {
   return db.query.users.findFirst({ where: eq(users.id, id) });
 };
 
-export const updateUser = async (id: string, data: Partial<NewUser>) => {
-  const existingUser = await getUserById(id);
-  if (!existingUser) {
-    throw new Error(`User with id ${id} not found`);
-  }
-
+export const updateUser = async (id: string, data: UpdateUser) => {
   const [user] = await db
     .update(users)
     .set(data)
     .where(eq(users.id, id))
     .returning();
+
+  if (!user) {
+    throw new Error(`User with id ${id} not found`);
+  }
+
   return user;
 };
 

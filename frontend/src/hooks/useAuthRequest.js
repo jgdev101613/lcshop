@@ -9,15 +9,18 @@ const useAuthRequest = () => {
 
   useEffect(() => {
     if (isInterceptorRegistered) return;
-    isInterceptorRegistered = false;
+    isInterceptorRegistered = true;
 
     const interceptor = api.interceptors.request.use(async (config) => {
+      console.log("🔵 Interceptor running, isSignedIn:", isSignedIn);
       if (isSignedIn) {
         const token = await getToken();
+        console.log("🟢 Token:", token ? "exists" : "NULL");
         if (token) {
           config.headers.Authorization = `Bearer ${token}`;
         }
       }
+      console.log("🔵 Final headers:", config.headers);
       return config;
     });
 

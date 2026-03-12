@@ -1,6 +1,6 @@
 import React from "react";
 import Navbar from "./components/Navbar";
-import { Route, Routes } from "react-router";
+import { Navigate, Route, Routes } from "react-router";
 import HomePage from "./pages/HomePage";
 import ProductPage from "./pages/ProductPage";
 import ProfilePage from "./pages/ProfilePage";
@@ -22,7 +22,10 @@ const App = () => {
           <Route path="/" element={<HomePage />} />
           <Route path="/product/:id" element={<ProductPage />} />
           <Route path="/profile" element={<ProfilePage />} />
-          <Route path="/create" element={<CreatePage />} />
+          <Route
+            path="/create"
+            element={isSignedIn ? <CreatePage /> : <Navigate to={"/"} />}
+          />
           <Route path="/edit/:id" element={<EditPage />} />
         </Routes>
       </main>

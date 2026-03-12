@@ -11,10 +11,10 @@ const Navbar = () => {
         {/* LOGO */}
         <div className="flex-1">
           <Link to={"/"} className="btn btn-ghost gap-2">
-            <ShoppingBagIcon className="size-5 text-primary" />
-            <span className="text-lg font-bold font-mono uppercase tracking-wider">
-              LCSTORE
-            </span>
+            {/* <ShoppingBagIcon className="size-5 text-primary" /> */}
+            <p className="text-2xl font-bold font-mono uppercase tracking-wider text-primary">
+              LC<span className="text-secondary">STORE</span>
+            </p>
           </Link>
         </div>
 
