@@ -45,8 +45,27 @@ export const createProduct = async (productData) => {
   return data;
 };
 
-export const updateProduct = async ({ id, ...updateData }) => {
-  const { data } = await api.put(`/products/${id}`, updateData);
+export const updateProduct = async ({
+  id,
+  files,
+  existingImages,
+  ...updateData
+}) => {
+  let newImageUrls = [];
+
+  if (files && files.length > 0) {
+    const formData = new FormData();
+    files.forEach((file) => formData.append("images", file));
+    const { data } = await api.post("/products/upload", formData);
+    newImageUrls = data.imageUrls;
+  }
+
+  const imageUrls = [...(existingImages ?? []), ...newImageUrls];
+
+  const { data } = await api.put(`/products/${id}`, {
+    ...updateData,
+    imageUrls,
+  });
   return data;
 };
 

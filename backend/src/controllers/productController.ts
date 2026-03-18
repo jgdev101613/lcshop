@@ -2,6 +2,7 @@ import type { Request, Response } from "express";
 
 import * as queries from "../db/queries";
 import { getAuth } from "@clerk/express";
+import cloudinary from "../config/cloudinary";
 
 // Get all products
 export const getAllProducts = async (req: Request, res: Response) => {
@@ -90,9 +91,13 @@ export const updateProduct = async (req: Request, res: Response) => {
     const allowedFields = [
       "title",
       "description",
-      "imageUrl",
+      "imageUrls",
       "price",
       "category",
+      "subCategory",
+      "location",
+      "status",
+      "stock",
     ];
 
     const updateData: any = {};
@@ -114,6 +119,22 @@ export const updateProduct = async (req: Request, res: Response) => {
       return;
     }
 
+    // Delete removed images from Cloudinary
+    if (updates.imageUrls && existingProduct.imageUrls) {
+      const removedUrls = existingProduct.imageUrls.filter(
+        (url: string) => !updates.imageUrls.includes(url),
+      );
+
+      for (const url of removedUrls) {
+        const publicId = url
+          .split("/upload/")[1] // get everything after /upload/
+          .replace(/^v\d+\//, "") // strip version like v1234567890/
+          .replace(/\.[^/.]+$/, ""); // strip file extension
+
+        await cloudinary.uploader.destroy(publicId);
+      }
+    }
+
     const product = await queries.updateProduct(productId, updateData);
 
     res.status(200).json(product);
@@ -130,6 +151,7 @@ export const deleteProduct = async (req: Request, res: Response) => {
 
     const { id } = req.params;
     const productId = Array.isArray(id) ? id[0] : id;
+
     const existingProduct = await queries.getProductById(productId);
     if (!existingProduct) {
       res.status(404).json({ error: "Product not found" });
@@ -137,11 +159,23 @@ export const deleteProduct = async (req: Request, res: Response) => {
     }
 
     if (existingProduct.userId !== userId) {
-      res.status(403).json({ error: "You can only update your own products" });
+      res.status(403).json({ error: "You can only delete your own products" });
       return;
     }
 
-    const product = queries.deleteProduct(productId);
+    // Delete all product images from Cloudinary
+    if (existingProduct.imageUrls?.length) {
+      for (const url of existingProduct.imageUrls) {
+        const publicId = url
+          .split("/upload/")[1] // get everything after /upload/
+          .replace(/^v\d+\//, "") // strip version like v1234567890/
+          .replace(/\.[^/.]+$/, ""); // strip file extension
+
+        await cloudinary.uploader.destroy(publicId);
+      }
+    }
+
+    await queries.deleteProduct(productId);
     res.status(200).json({ message: "Product deleted successfully" });
   } catch (error) {
     console.error("Error deleting product:", error);

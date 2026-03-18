@@ -31,7 +31,6 @@ const App = () => {
     return <ProfileCompletion />;
   }
 
-  console.log(user.externalAccounts);
   return (
     <div className="min-h-screen bg-base-100">
       <Navbar />
