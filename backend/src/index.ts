@@ -58,8 +58,6 @@ if (ENV.NODE_ENV === "production") {
   });
 }
 
-module.exports = { app };
-
-// app.listen(ENV.PORT, () =>
-//   console.log(`Server is running on port ${ENV.PORT}`),
-// );
+app.listen(ENV.PORT, () =>
+  console.log(`Server is running on port ${ENV.PORT}`),
+);
