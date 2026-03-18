@@ -3,6 +3,7 @@ import { ENV } from "./config/env";
 import cors from "cors";
 import { clerkMiddleware } from "@clerk/express";
 import path from "path";
+import { Request, Response } from "express";
 
 // Routes
 import userRoutes from "./routes/userRoutes";
@@ -28,14 +29,15 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 // Parses Form Data (like htlm form)
 
-app.get("/api/health", (req, res) => {
+app.get("/api/health", (req: Request, res: Response) => {
   res.json({
     message:
-      "Welcome to Productify API - Powered by PostgreSQL, Drizzle ORM & Clerk Auth",
+      "Welcome to Lucena Market API - Powered by PostgreSQL, Drizzle ORM & Clerk Auth",
     endpoints: {
       users: "/api/users",
       products: "/api/products",
       comments: "/api/comments",
+      commentsReply: "/api/comment-reply",
     },
   });
 });
@@ -53,7 +55,7 @@ if (ENV.NODE_ENV === "production") {
   app.use(express.static(path.join(__dirname, "../frontend/dist")));
 
   // handle SPA routing - send all non-API routes to index.html - react app
-  app.get("/{*any}", (req, res) => {
+  app.get("/{*any}", (req: Request, res: Response) => {
     res.sendFile(path.join(__dirname, "../frontend/dist/index.html"));
   });
 }
