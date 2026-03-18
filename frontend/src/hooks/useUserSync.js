@@ -2,10 +2,11 @@ import { useAuth, useUser } from "@clerk/react";
 import { useMutation } from "@tanstack/react-query";
 import { useEffect } from "react";
 import { syncUser } from "../lib/api";
+import toast from "react-hot-toast";
 
 const useUserSync = () => {
   const { isSignedIn } = useAuth();
-  const { user } = useUser();
+  const { user, isLoaded } = useUser();
 
   const {
     mutate: syncUserMutation,
@@ -15,20 +16,36 @@ const useUserSync = () => {
   } = useMutation({
     mutationFn: syncUser,
     onError: (error) => {
-      console.error("Failed to sync user:", error);
-      // Add toast
+      console.error("User sync failed:", error);
+      toast.error("User sync failed");
     },
   });
 
+  const name = user?.fullName || user?.firstName;
+
   useEffect(() => {
-    if (isSignedIn && user && !isPending && !isSuccess && !isError) {
+    if (!isLoaded) return;
+    if (!isSignedIn) return;
+    if (!user) return;
+    if (!name) return; // prevent sync if no name
+
+    if (!isPending && !isSuccess && !isError) {
       syncUserMutation({
         email: user.primaryEmailAddress?.emailAddress,
-        name: user.fullName || user.firstName,
+        name: name,
         imageUrl: user.imageUrl,
       });
     }
-  }, [isSignedIn, user, isPending, isSuccess, isError]);
+  }, [
+    isLoaded,
+    isSignedIn,
+    user,
+    name,
+    isPending,
+    isSuccess,
+    isError,
+    syncUserMutation,
+  ]);
 
   return { isSynced: isSuccess };
 };

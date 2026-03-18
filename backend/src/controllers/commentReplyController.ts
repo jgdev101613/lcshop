@@ -49,7 +49,7 @@ export const deleteCommentReply = async (req: Request, res: Response) => {
         .status(403)
         .json({ error: "You can only delete your own comment reply" });
 
-    await queries.deleteComment(id);
+    await queries.deleteCommentReply(id);
     res.status(200).json({ message: "Comment Reply deleted successfully" });
   } catch (error) {
     console.error("Error deleting comment reply:", error);

@@ -30,6 +30,39 @@ export async function syncUser(req: Request, res: Response) {
 }
 
 export const updateUser = async (req: Request, res: Response) => {
-  const { userId } = getAuth(req);
-  if (!userId) return res.status(401).json({ error: "Unauthorized" });
+  try {
+    const { userId } = getAuth(req);
+    if (!userId) return res.status(401).json({ error: "Unauthorized" });
+
+    const { socials, location } = req.body;
+
+    if (!socials && !location) {
+      return res.status(400).json({
+        error: "At least one field (socials or location) must be provided",
+      });
+    }
+
+    const updatedUser = await queries.updateUser(userId, {
+      socials,
+      location,
+    });
+
+    res.status(200).json(updatedUser);
+  } catch (error) {
+    console.error("Error updating user:", error);
+    res.status(500).json({ error: "Failed to update user" });
+  }
+};
+
+export const getUser = async (req: Request, res: Response) => {
+  try {
+    const { userId } = getAuth(req);
+    if (!userId) return res.status(401).json({ error: "Unauthorized" });
+
+    const user = await queries.getUserById(userId);
+
+    res.status(200).json(user);
+  } catch (error) {
+    res.status(500).json({ error: "Failed to fetch user" });
+  }
 };

@@ -28,6 +28,14 @@ const ProductCard = ({ product }) => {
         <p className="text-sm text-base-content/70 line-clamp-2">
           {product.description}
         </p>
+        <div className="text-sm flex justify-between">
+          <p className="text-base-content/90 font-bold">
+            ₱{Number(product.price).toLocaleString()}
+          </p>
+          <p className="text-right text-base-content/90">
+            Stock: {product.stock}
+          </p>
+        </div>
 
         <div className="divider my-1" />
 

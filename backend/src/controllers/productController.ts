@@ -29,7 +29,6 @@ export const getProductById = async (req: Request, res: Response) => {
     const { id } = req.params;
     const productId = Array.isArray(id) ? id[0] : id;
     const product = await queries.getProductById(productId);
-    console.log(product);
 
     if (!product) return res.status(404).json({ error: "Product not found" });
     res.status(200).json(product);

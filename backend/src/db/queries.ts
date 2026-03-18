@@ -1,10 +1,13 @@
 import { db } from "./index";
-import { eq } from "drizzle-orm";
+import { eq, and } from "drizzle-orm";
 import {
   users,
   comments,
   commentReply,
   products,
+  postLikes,
+  commentLikes,
+  replyLikes,
   type NewUser,
   type NewComment,
   type NewProduct,
@@ -189,4 +192,65 @@ export const deleteCommentReply = async (id: string) => {
     .where(eq(commentReply.id, id))
     .returning();
   return commentRep;
+};
+
+// Post Likes
+export const likePost = async (userId: string, productId: string) => {
+  const [like] = await db
+    .insert(postLikes)
+    .values({ userId, productId })
+    .onConflictDoNothing() // prevent duplicate
+    .returning();
+  return like;
+};
+
+export const unlikePost = async (userId: string, productId: string) => {
+  const deleted = await db
+    .delete(postLikes)
+    .where(
+      and(eq(postLikes.userId, userId), eq(postLikes.productId, productId)),
+    )
+    .returning();
+  return deleted[0];
+};
+
+// Comment Likes
+export const likeComment = async (userId: string, commentId: string) => {
+  const [like] = await db
+    .insert(commentLikes)
+    .values({ userId, commentId })
+    .onConflictDoNothing()
+    .returning();
+  return like;
+};
+
+export const unlikeComment = async (userId: string, commentId: string) => {
+  const deleted = await db
+    .delete(commentLikes)
+    .where(
+      and(
+        eq(commentLikes.userId, userId),
+        eq(commentLikes.commentId, commentId),
+      ),
+    )
+    .returning();
+  return deleted[0];
+};
+
+// Reply Likes
+export const likeReply = async (userId: string, replyId: string) => {
+  const [like] = await db
+    .insert(replyLikes)
+    .values({ userId, replyId })
+    .onConflictDoNothing()
+    .returning();
+  return like;
+};
+
+export const unlikeReply = async (userId: string, replyId: string) => {
+  const deleted = await db
+    .delete(replyLikes)
+    .where(and(eq(replyLikes.userId, userId), eq(replyLikes.replyId, replyId)))
+    .returning();
+  return deleted[0];
 };

@@ -7,14 +7,16 @@ import ProductCard from "../components/ProductCard";
 import { SignInButton } from "@clerk/react";
 
 const HomePage = () => {
-  const { data: products, isLoading, error } = useProducts();
-
-  if (isLoading) return <LoadingSpinner />;
+  const { data: products = [], isLoading, error } = useProducts();
 
   if (error) {
+    console.log(error);
     return (
       <div role="alert" className="alert alert-error">
-        <span>Something went wrong. Please refresh the page.</span>
+        <span>
+          Something went wrong, please reload the page or contact/email
+          jgdev101613@gmail.com with subject "Home Page Error"
+        </span>
       </div>
     );
   }
@@ -57,7 +59,13 @@ const HomePage = () => {
           All Products
         </h2>
 
-        {products.length === 0 ? (
+        {isLoading ? (
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+            {Array.from({ length: 6 }).map((_, i) => (
+              <div key={i} className="skeleton h-72 w-full rounded-xl"></div>
+            ))}
+          </div>
+        ) : products.length === 0 ? (
           <div className="card bg-base-300">
             <div className="card-body items-center text-center py-16">
               <PackageIcon className="size-16 text-base-content/20" />

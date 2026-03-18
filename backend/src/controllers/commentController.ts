@@ -35,12 +35,11 @@ export const deleteComment = async (req: Request, res: Response) => {
     const { userId } = getAuth(req);
     if (!userId) return res.status(401).json({ error: "Unauthorized" });
 
-    const { commentReplyId } = req.params;
-    const id = Array.isArray(commentReplyId)
-      ? commentReplyId[0]
-      : commentReplyId;
+    const { commentId } = req.params;
+    const id = Array.isArray(commentId) ? commentId[0] : commentId;
 
     const existingComment = await queries.getCommentById(id);
+    console.log("Comment Id: ", commentId);
     if (!existingComment)
       return res.status(404).json({ error: "Comment not found" });
 
