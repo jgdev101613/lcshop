@@ -2,6 +2,7 @@ import express from "express";
 import { ENV } from "./config/env";
 import cors from "cors";
 import { clerkMiddleware } from "@clerk/express";
+import path from "path";
 
 // Routes
 import userRoutes from "./routes/userRoutes";
@@ -13,6 +14,7 @@ import likeRouter from "./routes/likeRoutes";
 const app = express();
 
 const allowedHost: string[] = [
+  "http://localhost:3000",
   "http://192.168.1.101:5173",
   ENV.FRONTEND_URL,
 ].filter((host): host is string => typeof host === "string");
@@ -26,11 +28,35 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 // Parses Form Data (like htlm form)
 
+app.get("/api/health", (req, res) => {
+  res.json({
+    message:
+      "Welcome to Productify API - Powered by PostgreSQL, Drizzle ORM & Clerk Auth",
+    endpoints: {
+      users: "/api/users",
+      products: "/api/products",
+      comments: "/api/comments",
+    },
+  });
+});
+
 app.use("/api/users", userRoutes);
 app.use("/api/comments", commentsRoutes);
 app.use("/api/products", productRoutes);
 app.use("/api/comment-reply", commentReplyRoutes);
 app.use("/api/likes", likeRouter);
+
+if (ENV.NODE_ENV === "production") {
+  const __dirname = path.resolve();
+
+  // serve static files from frontend/dist
+  app.use(express.static(path.join(__dirname, "../frontend/dist")));
+
+  // handle SPA routing - send all non-API routes to index.html - react app
+  app.get("/{*any}", (req, res) => {
+    res.sendFile(path.join(__dirname, "../frontend/dist/index.html"));
+  });
+}
 
 app.listen(ENV.PORT, () =>
   console.log(`Server is running on port ${ENV.PORT}`),
