@@ -1,8 +1,9 @@
 import express from "express";
 import { ENV } from "./config/env";
+import fs from "node:fs";
+import path from "node:path";
 import cors from "cors";
 import { clerkMiddleware } from "@clerk/express";
-import path from "path";
 import { Request, Response } from "express";
 
 // Routes
@@ -48,15 +49,21 @@ app.use("/api/products", productRoutes);
 app.use("/api/comment-reply", commentReplyRoutes);
 app.use("/api/likes", likeRouter);
 
-if (ENV.NODE_ENV === "production") {
-  const __dirname = path.resolve();
+const publicDir = path.join(process.cwd(), "public");
+if (fs.existsSync(publicDir)) {
+  app.use(express.static(publicDir));
+  app.get("/{*any}", (req, res, next) => {
+    if (req.method !== "GET" && req.method !== "HEAD") {
+      next();
+      return;
+    }
 
-  // serve static files from frontend/dist
-  app.use(express.static(path.join(__dirname, "../frontend/dist")));
+    if (req.path.startsWith("/api") || req.path.startsWith("/webhooks")) {
+      next();
+      return;
+    }
 
-  // handle SPA routing - send all non-API routes to index.html - react app
-  app.get("/{*any}", (req: Request, res: Response) => {
-    res.sendFile(path.join(__dirname, "../frontend/dist/index.html"));
+    res.sendFile(path.join(publicDir, "index.html"), (err) => next(err));
   });
 }
 
