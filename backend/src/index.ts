@@ -15,13 +15,13 @@ import likeRouter from "./routes/likeRoutes";
 
 const app = express();
 
-const allowedHost: string[] = [
-  "http://localhost:3000",
-  "http://192.168.1.101:5173",
-  ENV.FRONTEND_URL,
-].filter((host): host is string => typeof host === "string");
+// const allowedHost: string[] = [
+//   "http://localhost:3000",
+//   "http://192.168.1.101:5173",
+//   ENV.FRONTEND_URL,
+// ].filter((host): host is string => typeof host === "string");
 
-app.use(cors({ origin: allowedHost, credentials: true }));
+app.use(cors({ credentials: true }));
 // `credentials: true` => allows the frontend to send cookies to the backend for user authentication
 app.use(clerkMiddleware());
 // Auth Object to be attached to the request
